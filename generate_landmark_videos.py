@@ -103,8 +103,6 @@ options_hand = HandLandmarkerOptions(
     running_mode=VisionRunningMode.VIDEO,
     num_hands=2)
 
-i=1
-
 def get_filenames():
     # Path to the folder containing the files
     folder_path = "./DB"
@@ -120,9 +118,9 @@ def get_filenames():
 print(get_filenames())
 
 ## INICIALIAZACAO E USO DOS LANDMARKERS
-with PoseLandmarker.create_from_options(options_pose) as pose_landmarker:
-    with HandLandmarker.create_from_options(options_hand) as hand_landmarker:
-        for filename in get_filenames():
+for filename in get_filenames():
+    with PoseLandmarker.create_from_options(options_pose) as pose_landmarker:
+        with HandLandmarker.create_from_options(options_hand) as hand_landmarker:
             video_path = f"./DB/{filename}.mp4"
             output_path = f"./ANNOTATED-DB/{filename}-landmarks.mp4"  # Path to save the output video
 
@@ -136,6 +134,7 @@ with PoseLandmarker.create_from_options(options_pose) as pose_landmarker:
             cap = cv2.VideoCapture(video_path)
 
             fps = cap.get(cv2.CAP_PROP_FPS)
+            #print(fps)
 
             annotated_frames = []
 
@@ -147,7 +146,7 @@ with PoseLandmarker.create_from_options(options_pose) as pose_landmarker:
                 rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
                 mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb_frame)
-
+                
                 frame_index = int(cap.get(cv2.CAP_PROP_POS_FRAMES))  # Current frame number
                 frame_timestamp_ms = int((frame_index / fps) * 1000)
                 
@@ -173,6 +172,7 @@ with PoseLandmarker.create_from_options(options_pose) as pose_landmarker:
                 out.write(cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))  # Convert RGB to BGR for OpenCV
 
             # Release the VideoWriter
+            cap.release()
             out.release()
 
             print(f"Video saved as {output_path}")
